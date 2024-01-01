@@ -17,7 +17,7 @@ def get_chart(data, asset_amount_krw):
         )
 
         lines = (
-            alt.Chart(data, title="asseets")
+            alt.Chart(data, title="assets")
             .mark_line()
             .encode(
                 x="date",
@@ -69,13 +69,17 @@ with col1 :
   
 with col2 :
   # column 2 에 담을 내용
-  st.write('결과')
+  #st.write('결과')
   if st.button('Calculate'):
     # Call bkproject with the input values
     asset_amounts, actions, closing_prices_krw = bkproject(asset_amount_krw,  buy_threshold/100, sell_threshold/100, buy_ratio/100, sell_ratio/100, ticker, start_date, end_date, country)
     asset_df = pd.DataFrame({'date': closing_prices_krw.Date, 'asset': asset_amounts})
-
+    asset_df['pct_change'] = (asset_df['asset'] / asset_df['asset'].iloc[0] - 1)*100
     # st.line_chart(asset_df.set_index('date')['asset'], height=400, use_container_width=True)
+    st.write("최종 결과")
+    st.write("마지막 날짜 : ", asset_df.iloc[-1]['date'])
+    st.write("자산 : ", round(asset_df.iloc[-1]['asset'],2), "원")
+    st.write("수익률 : ", round(asset_df.iloc[-1]['pct_change'],2), "%")
     
     chart = get_chart(asset_df, asset_amount_krw)
     st.altair_chart(chart.interactive(),use_container_width=True)
@@ -89,12 +93,15 @@ with col2 :
 
 
 # 탭 생성 : 첫번째 탭의 이름은 Tab A 로, Tab B로 표시합니다. 
-tab1, tab2= st.tabs(['Actions' , 'Amount'])
+    tab1, tab2= st.tabs(['Actions' , 'Amount'])
 
-with tab1:
-  st.write('actions')
-  st.write(pd.DataFrame(actions))
-    
-with tab2:
-  st.write('amount')
-  st.write(asset_df)
+    with tab1:
+        st.write('actions')
+        
+        st.write(pd.DataFrame(actions))
+        
+    with tab2:
+        st.write('amount')
+        #asset_df['pct_change'] = (asset_df['asset'] / asset_df['asset'].iloc[0] - 1)*100
+        #st.write(asset_df.iloc[-1])
+        st.write(asset_df)
